@@ -88,9 +88,9 @@ const { w, d, u, b, eo, Je, A, zf, Bt, en, gl } = N;
 // Sg: depth between stacked films (in focal lengths), Sp: how far each peeks out (in
 // window heights), Sk: opacity one and two places back, Sd: how much darker they get.
 // Hy, Hp: the tilt's largest turn and nod (radians). Lq: the pointer light's strength,
-// Lz: its reach (in screen heights). (Lq a third down from 1.15, and the page's glow with it: Luka, Oct 22, "it
-// lights too much")
-const SETTINGS = 'var Sg=.11,Sp=.07,Sk=[.8,.42],Sd=.12,Hy=.12,Hp=.08,Lq=.8,Lz=.2;';
+// Lz: its reach (in screen heights). (Lq from 1.15 a third down and then half again, and the page's glow with it:
+// Luka, Oct 22, "it lights too much", then "make it 2x more softer")
+const SETTINGS = 'var Sg=.11,Sp=.07,Sk=[.8,.42],Sd=.12,Hy=.12,Hp=.08,Lq=.4,Lz=.2;';
 
 // --- Helpers, next to the track's own placement ---------------------------------------
 // sCl, sMx, sSm: clamp, mix and smoothstep.
@@ -318,10 +318,10 @@ const css =
   '\nhtml.cur-on .strip{cursor:none!important}' +
   // The light: a warm core in the orange point's place and a soft glow around it that
   // lightens what is under it; smaller over the hero, where the scene itself is lit.
-  '\n.cur[data-mode=dot] .cur__p{background:radial-gradient(circle,#fff 0 24%,#ffd6bf 44%,var(--accent) 76%);box-shadow:0 0 6px 1px #fb5e2880,0 0 16px 3px #fb5e2826,0 0 0 1.5px #090c1240}' +
+  '\n.cur[data-mode=dot] .cur__p{background:radial-gradient(circle,#ffeee4 0 20%,#ffd6bf 44%,var(--accent) 76%);box-shadow:0 0 6px 1px #fb5e2840,0 0 16px 3px #fb5e2813,0 0 0 1.5px #090c1240}' +
   '\n.cur.is-inv[data-mode=dot] .cur__p{background:var(--accent);box-shadow:0 0 0 1.5px #090c128c}' +
   '\n.cur-light{position:fixed;z-index:89;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s ease;mix-blend-mode:screen;will-change:transform}' +
-  '\n.cur-light:before{content:"";position:absolute;left:-140px;top:-140px;width:280px;height:280px;border-radius:50%;background:radial-gradient(closest-side,#ffd9bf1e,#fb5e280b 45%,#fb5e2800);transition:transform .45s var(--ease-out),opacity .3s ease}' +
+  '\n.cur-light:before{content:"";position:absolute;left:-140px;top:-140px;width:280px;height:280px;border-radius:50%;background:radial-gradient(closest-side,#ffd9bf0f,#fb5e2806 45%,#fb5e2800);transition:transform .45s var(--ease-out),opacity .3s ease}' +
   '\n.cur-light.is-on{opacity:1}' +
   '\n.cur-light.in-hero:before{transform:scale(.45);opacity:.7}' +
   '\n.cur-light[data-mode=link]:before{transform:scale(.55)}' +
