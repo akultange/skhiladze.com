@@ -1,5 +1,5 @@
-// skhiladze.com, build 458976807
-const KEEP = 'skh-458976807';
+// skhiladze.com, build 3805006603
+const KEEP = 'skh-3805006603';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k !== KEEP) await caches.delete(k);
