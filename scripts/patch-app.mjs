@@ -27,6 +27,10 @@ if (!jsIn || !cssIn) {
   process.exit(1);
 }
 const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
+// The stack is off on the live site until it works (Luka, Oct 22: "revert this stacked hero ... just this stacked
+// heros are broken"): the tilt, the light and the type stay, the films hang on the track as before and the stepper
+// is back under them. Set STACK to true to try the stack again.
+const STACK = false;
 let src = readFileSync(jsIn, 'utf8');
 
 const ADDED = ['eS', 'eD', 'sA', 'sE', 'sCl', 'sMx', 'sSm', 'Sg', 'Sp', 'Sk', 'Sd', 'hv', 'hS', 'Hy', 'Hp', 'Lq', 'Lz', 'lgt', 'lcv', 'lcs'];
@@ -137,7 +141,7 @@ swap(`${w}.house=1,`, `${w}.house=1,${w}.stk0=-1e9,`);
   const reset = `${en}.forEach(J=>{J.p=J.pv=null})`;
   edit(
     R`${w}\.house\+=\(\(${d}\.done\|\|${d}\.docked\?1:0\)-${w}\.house\)\*\(${N.Pt}\?1:1-Math\.exp\(-[\w$]+\/\.9\)\);`,
-    (all) => all + `${d}.done?${w}.stk0==null&&(${w}.stk0=${N.tnow},${reset}):${w}.stk0!=null&&(${w}.stk0=null,${reset});hv(${N.dt});`,
+    (all) => all + (STACK ? `${d}.done?${w}.stk0==null&&(${w}.stk0=${N.tnow},${reset}):${w}.stk0!=null&&(${w}.stk0=null,${reset});` : '') + `hv(${N.dt});`,
     'the hero step',
   );
 }
@@ -149,17 +153,21 @@ edit(
 );
 
 // --- Placing each film -----------------------------------------------------------------
-edit(R`([\w$]+)=${Je}\(([\w$]+)\),([\w$]+)=${eo}\(\1\)`, (all, q, at, p) => `${q}=${Je}(${at}),${p}=eS(${q})`, "a film's place, each frame");
-edit(R`([\w$]+)=${zf}\.p\|\|${eo}\(${Je}\(${A}\.d\)\)`, (all, p) => `${p}=${zf}.p||eS(${Je}(${A}.d))`, "a film's place, drawn");
+if (STACK) {
+  edit(R`([\w$]+)=${Je}\(([\w$]+)\),([\w$]+)=${eo}\(\1\)`, (all, q, at, p) => `${q}=${Je}(${at}),${p}=eS(${q})`, "a film's place, each frame");
+  edit(R`([\w$]+)=${zf}\.p\|\|${eo}\(${Je}\(${A}\.d\)\)`, (all, p) => `${p}=${zf}.p||eS(${Je}(${A}.d))`, "a film's place, drawn");
+}
 // The tilt turns the card and its clip about the clip (the card's top centre).
 edit(
   R`([\w$]+)=\[0,${zf}\.th\+${zf}\.th2,([\w$]+)\]`,
   (all, rot, wob) => `${rot}=[${w}.hy*hS(${A}),${zf}.th+${zf}.th2+${w}.hp*hS(${A}),${wob}]`,
   "the card's turn",
 );
-edit(R`[\w$]+=-\(1-[\w$]+\)\*\([\w$]+\+[\w$]+\)\+${zf}\.sy-\.007\*${Bt}`, (all) => `${all}+eD(${Je}(${A}.d))`, "the card's drop");
-edit(R`([\w$]+)=\.032,([\w$]+)=0,([\w$]+)=1;if\(`, (all, r, dim, k) => `${r}=.032,${dim}=Sd*sCl(${Je}(${A}.d),0,2),${k}=1;if(`, "the card's shade");
-edit(R`isStation:([\w$]+)\}\)`, (all, st) => `isStation:${st},alpha:sMx(sA(${Je}(${A}.d),${A}.k),1,${Bt}),hov:hS(${A})*${w}.hk})`, "the card's opacity");
+if (STACK) {
+  edit(R`[\w$]+=-\(1-[\w$]+\)\*\([\w$]+\+[\w$]+\)\+${zf}\.sy-\.007\*${Bt}`, (all) => `${all}+eD(${Je}(${A}.d))`, "the card's drop");
+  edit(R`([\w$]+)=\.032,([\w$]+)=0,([\w$]+)=1;if\(`, (all, r, dim, k) => `${r}=.032,${dim}=Sd*sCl(${Je}(${A}.d),0,2),${k}=1;if(`, "the card's shade");
+}
+edit(R`isStation:([\w$]+)\}\)`, (all, st) => `isStation:${st},${STACK ? `alpha:sMx(sA(${Je}(${A}.d),${A}.k),1,${Bt}),` : ''}hov:hS(${A})*${w}.hk})`, "the card's opacity");
 // The window's glow grows a little while it is hovered.
 edit(R`(\(1-[\w$]+\(0,\.12,${N.Pe}\.a\)\)\*\(1\+\.9\*)([\w$]+)\)`, (all, head, dock) => `${head}${dock}+.5*${w}.hk)`, "the window's glow");
 
@@ -177,9 +185,11 @@ edit(
 );
 // A film faded out is not drawn, hung or picked. Only the film in the window (or the one
 // taking its place) shows its clip and rod: the stack behind hangs out of sight.
-edit(/if\(!\(([\w$]+)\.H>0\)\)return;/, (all, f) => `if(!(${f}.H>0)||${f}.alpha<.003)return;`, 'drawing a card');
-edit(/for\(let ([\w$]+) of ([\w$]+)\)\{if\(!\1\.R\)continue;/, (all, f, list) => `for(let ${f} of ${list}){if(!${f}.R||${f}.alpha<.003||${d}.done&&${f}.d>.5)continue;`, 'drawing the rigs');
-edit(R`!([\w$]+)\.P\|\|\1\.H<${u}\.gh\*\.5\|\|`, (all, f) => `${all}${f}.alpha<.3||`, 'picking a card');
+if (STACK) {
+  edit(/if\(!\(([\w$]+)\.H>0\)\)return;/, (all, f) => `if(!(${f}.H>0)||${f}.alpha<.003)return;`, 'drawing a card');
+  edit(/for\(let ([\w$]+) of ([\w$]+)\)\{if\(!\1\.R\)continue;/, (all, f, list) => `for(let ${f} of ${list}){if(!${f}.R||${f}.alpha<.003||${d}.done&&${f}.d>.5)continue;`, 'drawing the rigs');
+  edit(R`!([\w$]+)\.P\|\|\1\.H<${u}\.gh\*\.5\|\|`, (all, f) => `${all}${f}.alpha<.3||`, 'picking a card');
+}
 // The glass sheen that slides with the card's nod shows more while it is hovered.
 swap('col += vec3(0.05) * sh * (1.0 - u_hush);', 'col += vec3(0.05 + 0.1 * u_hov) * sh * (1.0 - u_hush);');
 
@@ -301,8 +311,8 @@ base = FACES + base.replace(INTER_FACE, '').replace(/Inter Display/g, 'Martian D
 // --- Styles ---------------------------------------------------------------------------
 const css =
   base.replace(/\n*$/, '') +
-  // No stepper under the 3D hero: the stack shows what comes next.
-  '\n.is-vault .dots{display:none}' +
+  // No stepper under the 3D hero while the stack shows what comes next.
+  (STACK ? '\n.is-vault .dots{display:none}' : '') +
   // The pointer over the hero's canvas is the site's own, not the system's.
   '\nhtml.cur-on .strip{cursor:none!important}' +
   // The light: a warm core in the orange point's place and a soft glow around it that
