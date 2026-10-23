@@ -1,5 +1,5 @@
-// skhiladze.com, build 2887473723
-const KEEP = 'skh-2887473723';
+// skhiladze.com, build 3231918054
+const KEEP = 'skh-3231918054';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k !== KEEP) await caches.delete(k);
@@ -11,7 +11,11 @@ self.addEventListener('fetch', (e) => {
   const u = new URL(r.url);
   if (u.origin !== location.origin || r.headers.has('range') || /\.(mp4|webm|m4v|mov)$/i.test(u.pathname)) return;
   if (r.mode === 'navigate') {
-    e.respondWith(fetch(r).then((res) => {
+    // (always asked of the server, which says at once if it is unchanged: a page opened again is never an older build
+    // the browser kept a while, Luka, Oct 23, on his phone)
+    let q = r;
+    try { q = new Request(r, { cache: 'no-cache' }); } catch (er) { q = r; }
+    e.respondWith(fetch(q).then((res) => {
       if (res.ok) { const c = res.clone(); caches.open(KEEP).then((k) => k.put(r, c)); }
       return res;
     }, () => caches.match(r).then((m) => m || Response.error())));
